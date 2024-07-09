@@ -6,7 +6,9 @@ Esse projeto de computação gráfica visa implementar um sistema simples, escri
 
 O código fonte pode ser convertido em binário utilizando a ferramenta `cmake`, disponível para Windows, MacOS e distribuições GNU/Linux, para distros baseada em Debian, o `cmake` pode ser obtido por
 
-> sudo apt install cmake
+``` sh
+sudo apt install cmake
+```
 
 Esse programa utiliza a suite de testes unitários da Google: `gtest`, o `cmake` irá baixar uma cópia dos arquivos necessários para a compilação ocorrer sem problemas. É possível compilar o `gtest` manualmente [seguindo as instruções dadas pela Google](https://github.com/google/googletest/blob/main/googletest/README.md).
 
