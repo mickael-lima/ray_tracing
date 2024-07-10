@@ -120,7 +120,6 @@ TEST(OperadorVetores3D, MultiplicacaoEntreVetorEscalar) {
     Vec3 resultado2 = vetor_u * scalar;
 
     Vec3 resultado3 = vetor_u / scalar;
-    Vec3 resultado4 = scalar / vetor_u;
 
     EXPECT_EQ(resultado1.x(), 256);
     EXPECT_EQ(resultado1.y(), 16);
@@ -133,10 +132,6 @@ TEST(OperadorVetores3D, MultiplicacaoEntreVetorEscalar) {
     EXPECT_EQ(resultado3.x(), 4096);
     EXPECT_EQ(resultado3.y(), 256);
     EXPECT_EQ(resultado3.z(), 16);
-
-    EXPECT_EQ(resultado4.x(), 4096);
-    EXPECT_EQ(resultado4.y(), 256);
-    EXPECT_EQ(resultado4.z(), 16);
 }
 
 TEST(OperadorVetores3D, ProdutoVetorial) {

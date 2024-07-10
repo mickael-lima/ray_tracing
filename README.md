@@ -1,5 +1,7 @@
 # `ray-tracing`
 
+![Resultado da renderização](res/resultado.png)
+
 Esse projeto de computação gráfica visa implementar um sistema simples, escrito em `C++`(necessário C++17` para cima), de _ray tracing_, uma técnica de renderização que simula os raios de luz (que são tratados como vetores) em objeto, de forma que o observador age como a fonte de luz do ambiente emulado. 
 
 ### Compilando

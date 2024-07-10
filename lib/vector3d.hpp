@@ -110,10 +110,6 @@ inline Vec3 operator/(const Vec3 &vetor, double scalar) {
     return (1/scalar) * vetor;
 }
 
-inline Vec3 operator/(double scalar, const Vec3 &vetor) {
-    return (1/scalar) * vetor;
-}
-
 // Produto escalar entre dois vetores
 inline double operator*(const Vec3 &vetor_u, const Vec3 &vetor_v) {
     return vetor_u.x() * vetor_v.x()
