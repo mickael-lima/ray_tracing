@@ -1,6 +1,6 @@
 # `ray-tracing`
 
-![Resultado da renderização](res/resultado.png)
+![Resultado da renderização](res/resultado.png){style="display: block; margin: 0 auto"}
 
 Esse projeto de computação gráfica visa implementar um sistema simples, escrito em `C++`(necessário C++17` para cima), de _ray tracing_, uma técnica de renderização que simula os raios de luz (que são tratados como vetores) em objeto, de forma que o observador age como a fonte de luz do ambiente emulado. 
 
@@ -36,4 +36,11 @@ cd ray_tracing && mkdir -p build
 cd build && cmake ..
 ```
 
-4. Quando o processo de compilação terminar, dois binários serão disponibilizados na pasta `build`, chamados de `ray_tracing` e `tests`. O primeiro é o programa em si e o segundo executa uma série de testes para garantir que o código esteja funcionando conforme fora pensado durante sua criação.
+4. Quando o processo de compilação terminar, dois binários serão disponibilizados na pasta `build`, chamados de `ray_tracing` e `tests`. O primeiro é o programa em si e o segundo executa uma série de testes para garantir que o código esteja funcionando conforme fora pensado durante sua criação. Para formar a imagem, utilize 
+
+``` sh
+./ray_tracing >> imagem.ppm
+```
+
+E abra o arquivo `.ppm` em algum visualizador de imagem de sua escolha. 
+
