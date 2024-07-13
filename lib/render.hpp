@@ -2,19 +2,21 @@
 #define _RENDER_H_
 
 #include <iostream>
+
 #include "vector3d.hpp"
 #include "ray.hpp"
 
 class Render {
     public:
         explicit Render(int img_width = 400, double viewport_height = 2.0)
-            : m_img_width{img_width},
+            : m_img_width{ img_width },
+              m_aspect_ratio{ 16.0 / 9.0 },
               m_viewport_height{viewport_height},
 
               // Computa-se a altura em função da largura e do aspect ratio
               // 16 / 9 = largura / altura => altura = (9 * largura)/16 = altura, ou altura = largura / (16/9)
               // Se a altura for menor que 1 na conversão, considere h = 1 para evitar complicações
-              m_img_height{ (int(m_img_width / aspect_ratio) < 1) ? 1 : (int(m_img_width / aspect_ratio)) },
+              m_img_height{ (int(m_img_width / m_aspect_ratio) < 1) ? 1 : (int(m_img_width / m_aspect_ratio)) },
 
               // Não é recomendável usar o valor puro do aspect ratio para esse cálculo porque
               // o aspect ratio real pode diferir de 16/9 por causa do arredondamentos feito com int().
@@ -22,11 +24,11 @@ class Render {
               // de modo que 16/9 é aprox imd_width / img_height
               m_viewport_width{m_viewport_height * (double(m_img_width) / m_img_height)} {}
 
-        void output_to_ppm();
+        void output_to_ppm(const char *filename);
         void write_color(std::ostream &out, const Vec3 &color);
 
     private:
-        double aspect_ratio = 16.0 / 9.0;
+        double m_aspect_ratio;
 
         // O viewport refere-se a um retângulo inserido no espaço. Funciona como uma "janela" 2D para o 3D
         // m_img_* referem-se as dimensões da imagem

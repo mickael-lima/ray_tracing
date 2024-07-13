@@ -4,7 +4,7 @@
     <img src="./res/resultado.png"/>
 </p>
 
-Esse projeto de computação gráfica visa implementar um sistema simples, escrito em `C++`(necessário C++17` para cima), de _ray tracing_, uma técnica de renderização que simula os raios de luz (que são tratados como vetores) em objeto, de forma que o observador age como a fonte de luz do ambiente emulado. 
+Esse projeto de computação gráfica visa implementar um sistema simples, escrito em `C++`(necessário `C++17` para cima, pois algumas partes do programa utilizam `std::filesystem`), de _ray tracing_, uma técnica de renderização que simula os raios de luz (que são tratados como vetores) em objeto, de forma que o observador age como a fonte de luz do ambiente emulado. 
 
 ### Compilando
 
@@ -41,8 +41,8 @@ cd build && cmake ..
 4. Quando o processo de compilação terminar, dois binários serão disponibilizados na pasta `build`, chamados de `ray_tracing` e `tests`. O primeiro é o programa em si e o segundo executa uma série de testes para garantir que o código esteja funcionando conforme fora pensado durante sua criação. Para formar a imagem, utilize 
 
 ``` sh
-./ray_tracing >> imagem.ppm
+./ray_tracing --output nome_da_imagem.ppm
 ```
 
-E abra o arquivo `.ppm` em algum visualizador de imagem de sua escolha. 
-
+### Compatibilidade
+O código e o sistema de compilação foram testados no `GNU/Linux` na distribuição `NixOS` em seu `branch stable-24.05` com `cmake v3.29` com auxiliar `gnumake`, no `Windows 11` com a suite `Visual Studio 2022` e em uma máquina virtual com `Ubuntu 22.04 LTS`. As imagens geradas pelo programa foram abertos com o visualizador de bitmap nativo do `Windows 11` e com o `Gwenview` do `KDE 6`. Caso haja alguma complicação em algum sistema não testado (Mac, *BSD) comunique criando um `issue`.

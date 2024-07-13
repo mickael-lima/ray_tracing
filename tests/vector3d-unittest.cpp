@@ -147,7 +147,7 @@ TEST(OperadorVetores3D, ProdutoVetorial) {
 
 TEST(OperadorVetores3D, VetorUnitario) {
     Vec3 vetor{2, -4, 1};
-    Vec3 resultado{vetor_unit(vetor)};
+    Vec3 resultado{vetor.unit()};
 
     EXPECT_EQ(resultado.x(), 2 / std::sqrt(21));
     EXPECT_EQ(resultado.y(), -(4 / std::sqrt(21)));

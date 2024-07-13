@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.25)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -24,11 +24,12 @@ add_executable(
   main.cpp
   src/render.cpp
 
-)
+ "src/vector3d.cpp")
 
 add_executable(
   tests
   tests/vector3d-unittest.cpp
+  src/vector3d.cpp
 )
 
 target_link_libraries(

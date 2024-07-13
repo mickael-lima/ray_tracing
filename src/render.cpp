@@ -1,5 +1,6 @@
 #include <iostream>
-#include <typeinfo>
+#include <fstream>
+#include <filesystem>
 
 #include "../lib/render.hpp"
 #include "../lib/vector3d.hpp"
@@ -45,22 +46,26 @@ void Render::write_color(std::ostream &out, const Vec3 &color) {
 }
 
 // Trataremos a cor no formato RGB, onde os valores de R, G e B são componentes de um vetor
-void Render::output_to_ppm() {
+void Render::output_to_ppm(const char *filename) {
+
+    if (std::filesystem::exists(filename))
+        std::clog << "[AVISO] arquivo " << filename << " existe, seu conteúdo será sobreescrito" << std::endl;
 
     // Objeto para renderizar
     Sphere obj_sphere(Vec3(0,0,-1), 0.5);
 
+    // Arquivo para escrever a renderização em formado .PPM
+    std::ofstream output_file(filename, std::ofstream::out | std::ofstream::trunc);
+
     // https://en.wikipedia.org/wiki/Netpbm#PPM_example
-    std::cout << "P3" << std::endl;
-    std::cout << m_img_width << ' ' << m_img_height << std::endl;
-    std::cout << "255" << std::endl;
+    output_file << "P3" << std::endl;
+    output_file << m_img_width << ' ' << m_img_height << std::endl;
+    output_file << "255" << std::endl;
 
     // Qualquer coisa abaixo de "255" é considerado como conteúdo
     // A ordem de informação é RGBYWB (red/green/blue/yellow/white/black)
     for(auto j = 0; j < m_img_height; ++j) {
-
         std::clog << "\nLinhas verticias restantes: " << (m_img_height - j) << ' ' << std::flush;
-        std::cout << std::endl;
 
         for(auto i = 0; i < m_img_width; ++i) {
 
@@ -76,9 +81,10 @@ void Render::output_to_ppm() {
                 pixel_color = r.ray_color();
             }
 
-            write_color(std::cout, pixel_color);
+            write_color(output_file, pixel_color);
         }
     }
 
+    output_file.close();
     std::clog << std::endl << "Concluído" << std::endl;
 }
