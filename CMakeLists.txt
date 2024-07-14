@@ -23,8 +23,9 @@ add_executable(
 
   main.cpp
   src/render.cpp
-
- "src/vector3d.cpp")
+  src/objects.cpp
+  src/vector3d.cpp
+)
 
 add_executable(
   tests

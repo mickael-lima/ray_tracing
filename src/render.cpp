@@ -1,34 +1,12 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <memory>
 
 #include "../lib/render.hpp"
 #include "../lib/vector3d.hpp"
+#include "../lib/objects.hpp"
 #include "../lib/ray.hpp"
-
-// Essa função calcula se um determinado raio de luz P(t) = Q + td intercepta a esfera
-// Matematicamente, partimos de (C - P)(C - P) = r², onde P = P(t) para sabermos
-// se há interseção. Desenvolvendo essa expressão usando regras de produto escalar
-// chega-se em t²(d * d) - 2t(d * (C - Q)) + (C - Q)(C - Q) - r² = 0, uma equação
-// de segundo grau onde:
-//
-// - a = (d * d)
-// - b = -2(d ((C - Q)))
-// - c = (C - Q)(C - Q) - r²
-//
-// Se b² - 4ac < 0, então não intercepta, se b² - 4ac = 0, intercepta em apenas um ponto
-// e por fim, se b² - 4ac > 0, intercepta em dois pontos.
-bool Sphere::hit_sphere(const Ray& ray) {
-    auto C_minus_Q = m_center - ray.origin();
-
-    auto a = ray.direction() * ray.direction();
-    auto b = -2.0 * (ray.direction() * C_minus_Q);
-    auto c = (C_minus_Q * C_minus_Q) - m_radius*m_radius;
-
-    auto discriminant = b*b - 4*a*c;
-
-    return (discriminant >= 0);
-}
 
 // Essa função transforma um vetor de cor {R, G, B} em uma linha válida de PPM
 // mais informações sobre o formato PPM pode ser encontrada nos comentários de
@@ -45,14 +23,29 @@ void Render::write_color(std::ostream &out, const Vec3 &color) {
     out << rbyte << ' ' << gbyte << ' ' << bbyte << std::endl;
 }
 
+Vec3 Render::ray_color(const Ray &r, const Hittable &world) {
+    HitRecord rec;
+
+    // Consideramos t_max igual infinito para gerar a imagem especifa
+    if(world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec))
+        return 0.5 * (rec.normal_sur_vector + Vec3{1, 1, 1});
+
+    Vec3 unit_direction = r.direction().unit();
+    auto a = 0.5*(unit_direction.y() + 1.0);
+    return (1.0-a)*Vec3(1.0, 1.0, 1.0) + a*Vec3(0.5, 0.7, 1.0);
+}
+
 // Trataremos a cor no formato RGB, onde os valores de R, G e B são componentes de um vetor
 void Render::output_to_ppm(const char *filename) {
 
     if (std::filesystem::exists(filename))
         std::clog << "[AVISO] arquivo " << filename << " existe, seu conteúdo será sobreescrito" << std::endl;
 
-    // Objeto para renderizar
-    Sphere obj_sphere(Vec3(0,0,-1), 0.5);
+    // Lista de objetos que será renderizado
+    HittableList world;
+
+    world.add_to_obj_list(std::make_shared<Sphere>(Point3(0, 0, -1.0), 0.5));
+    world.add_to_obj_list(std::make_shared<Sphere>(Point3(0, -100.5, -1.0), 100));
 
     // Arquivo para escrever a renderização em formado .PPM
     std::ofstream output_file(filename, std::ofstream::out | std::ofstream::trunc);
@@ -73,14 +66,8 @@ void Render::output_to_ppm(const char *filename) {
             auto ray_direction = pixel_center - m_camera_center;
 
             Ray r(m_camera_center, ray_direction);
-            Vec3 pixel_color{};
 
-            if(obj_sphere.hit_sphere(r)) {
-                pixel_color = Vec3{0,1,0};
-            } else {
-                pixel_color = r.ray_color();
-            }
-
+            Vec3 pixel_color = ray_color(r, world);
             write_color(output_file, pixel_color);
         }
     }

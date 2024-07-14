@@ -23,11 +23,6 @@ class Ray {
         // at(t) = (x_d, y_d, z_d) + t(x_0, y_0, z_0)
         Point3 at(double t) const {return (m_ray_direction * t) + m_ray_origin;};
 
-        Vec3 ray_color() {
-            Vec3 unit_direction = m_ray_direction.unit();
-            auto a = 0.5*(unit_direction.y() + 1.0);
-            return (1.0-a)*Vec3(1.0, 1.0, 1.0) + a*Vec3(0.5, 0.7, 1.0);
-        }
 };
 
 #endif // RAY_H_

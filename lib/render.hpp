@@ -5,13 +5,14 @@
 
 #include "vector3d.hpp"
 #include "ray.hpp"
+#include "objects.hpp"
 
 class Render {
     public:
         explicit Render(int img_width = 400, double viewport_height = 2.0)
-            : m_img_width{ img_width },
-              m_aspect_ratio{ 16.0 / 9.0 },
-              m_viewport_height{viewport_height},
+          : m_aspect_ratio{16.0/9.0},
+            m_img_width{ img_width },
+            m_viewport_height{viewport_height},
 
               // Computa-se a altura em função da largura e do aspect ratio
               // 16 / 9 = largura / altura => altura = (9 * largura)/16 = altura, ou altura = largura / (16/9)
@@ -26,6 +27,7 @@ class Render {
 
         void output_to_ppm(const char *filename);
         void write_color(std::ostream &out, const Vec3 &color);
+        Vec3 ray_color(const Ray &r, const Hittable &world);
 
     private:
         double m_aspect_ratio;
@@ -65,18 +67,6 @@ class Render {
         // https://raytracing.github.io/images/fig-1.04-pixel-grid.jpg
         Vec3 m_viewport_upper_left{m_camera_center - Vec3(0, 0, m_focal_length) - m_viewport_i/2 - m_viewport_j/2};
         Vec3 m_pixel00_loc{m_viewport_upper_left + 0.5 * (m_pixel_delta_i + m_pixel_delta_j)};
-};
-
-class Sphere {
-    public:
-        Sphere(const Vec3 &center, double radius)
-            : m_center(center), m_radius(radius) {};
-
-        bool hit_sphere(const Ray& ray);
-
-    private:
-        Vec3 m_center{};
-        double m_radius;
 };
 
 #endif
