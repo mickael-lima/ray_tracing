@@ -6,6 +6,7 @@
 
 #include "vector3d.hpp"
 #include "ray.hpp"
+#include "interval.hpp"
 
 // Esse header contém os objetos que queremos renderizar. Todos serão deriváveis de uma classe
 // puramente virtul que servirar como base, chamada de "Hittable" (ou seja, tudo que pode ser
@@ -20,7 +21,7 @@ class HitRecord {
         Point3 point;
         Vec3 normal_sur_vector;
         double t;
-        bool front_face;
+        bool is_front_face;
 
         // Por convenção, todos os vetores normais à superfície do objeto devem
         // apontar para fora (no mesmo sentido do vetor centro->ponto na superfície)
@@ -32,7 +33,7 @@ class HitRecord {
 class Hittable {
     public:
         virtual ~Hittable() = default;
-        virtual bool hit(const Ray &r, double ray_tmin, double ray_tmax, HitRecord &h_rec) const = 0;
+        virtual bool hit(const Ray &r, Interval acceptable_t_interval, HitRecord &h_rec) const = 0;
 };
 
 class Sphere : public Hittable {
@@ -46,7 +47,7 @@ class Sphere : public Hittable {
 
         // O raio contará como "tocado" se o t obtido estiver contido no intervalo aberto (ray_tmin, ray_tmax)
         // isso é: ray_tmin < t < ray_tmax
-        bool hit(const Ray& ray, double ray_tmin, double ray_tmax, HitRecord &h_rec) const override;
+        bool hit(const Ray& ray, Interval acceptable_t_interval, HitRecord &h_rec) const override;
 
     private:
         Vec3 m_center{};
@@ -65,7 +66,7 @@ class HittableList : public Hittable {
         void clear() { objects.clear(); };
         void add_to_obj_list(std::shared_ptr<Hittable> object) { objects.push_back(object); };
 
-        bool hit(const Ray& r, double ray_tmin, double ray_tmax, HitRecord &rec) const override;
+        bool hit(const Ray& r, Interval acceptable_t_interval, HitRecord &rec) const override;
 };
 
 #endif // OBJECTS_H_

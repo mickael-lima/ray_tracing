@@ -1,21 +1,23 @@
 #include "../lib/ray.hpp"
 #include "../lib/objects.hpp"
 
+// NOTE: a operação abaixo ilustrará porque outward_normal tem que ser unitário.
+
 // Pela álgebra linear, o produto escalar entre dois vetores u, v pode ser computado usando
 // a expressão: u * v = ||u|| ||v|| * cos(a), onde a é o ângulo entre u e v. considere v como
 // unitário, então u * v = ||u|| * cos(a). Note que cos(a) = u / ||u||, que inevitavelmente
 // será unitário também. Se cos(a) < 0, então os vetores está em sentidos opostos, se cos(a) > 0
-// então os vetores estarão no mesmo sentido. NOTE: é por isso que outward_normal tem que ser unitário.
+// então os vetores estarão no mesmo sentido.
 void HitRecord::set_face_normal(const Ray &r, const Vec3 &outward_normal) {
 
     // Se for menor que 0, então o vetor direcional do raio de luz e o vetor da superfície são
     // opostos, logo estamos lidando com a superfície externa. Caso contrário, estamos lidando
     // com uma superfície interna (a iluminação está "saíndo de dentro pra fora")
-    front_face = (r.direction() * outward_normal) < 0;
+    is_front_face = (r.direction() * outward_normal) < 0;
 
     // Se o raio de luz estiver interagindo com a superfície externa, então o vetor normal é o
     // outward_normal. Caso contrário, entõ é o vetor oposto ao outward_normal.
-    normal_sur_vector = front_face ? outward_normal : -outward_normal;
+    normal_sur_vector = is_front_face ? outward_normal : -outward_normal;
 
 }
 
@@ -37,7 +39,7 @@ void HitRecord::set_face_normal(const Ray &r, const Vec3 &outward_normal) {
 // de substituição, então b = -2(d * (C - Q)) = h +/- sqrt(h² - ac) / a => h = -(b/2) = d * (C - Q).
 //
 // Essa simplificação forçada diminui o número de operações matemáticas necessárias para achar t.
-bool Sphere::hit(const Ray& ray, double ray_tmin, double ray_tmax, HitRecord &h_rec ) const {
+bool Sphere::hit(const Ray& ray, Interval acceptable_t_interval, HitRecord &h_rec ) const {
     auto C_minus_Q = m_center - ray.origin();
 
     auto a = (ray.direction()).length() * (ray.direction().length());
@@ -55,19 +57,18 @@ bool Sphere::hit(const Ray& ray, double ray_tmin, double ray_tmax, HitRecord &h_
     auto valid_t = t1;
 
     // Se as raízes, que são valores para o t do raio, não estiverem entre ray_tmin e ray_tmax
-    // então o raio não contabilizou
-    if(t1 <= ray_tmin || t1 >= ray_tmax) {
+    // então o raio não contabilizou. Contabilizamos t se, e somente se, tmin < t < tmax.
+    if(!acceptable_t_interval.in_between(t1)) {
         valid_t = t2; // consideramos aqui que t2 seja um possível valor válido para t
 
-        if(t2 <= ray_tmin || t2 >= ray_tmax) {
+        if(!acceptable_t_interval.in_between(t2))
             return false;
-        }
     }
 
     h_rec.t = valid_t;
     h_rec.point = ray.at(valid_t);
 
-    // O vetor normal da superfície esférica no ponto sempre será (ponto - centro) / raio
+    // O vetor normal da superfície esférica no ponto sempre será (ponto - centro) / raio *(raio = módulo)*
     // O vetor normal final leva em conta o sentido do raio de luz e sua interação com o objeto
     Vec3 outward_normal = (h_rec.point - m_center) / m_radius;
     h_rec.set_face_normal(ray, outward_normal);
@@ -76,13 +77,13 @@ bool Sphere::hit(const Ray& ray, double ray_tmin, double ray_tmax, HitRecord &h_
 }
 
 //
-bool HittableList::hit(const Ray& r, double ray_tmin, double ray_tmax, HitRecord &h_rec) const {
+bool HittableList::hit(const Ray& r, Interval acceptable_t_interval, HitRecord &h_rec) const {
     HitRecord temp_h_rec;
     bool hit_anything = false;
-    auto closest_so_far = ray_tmax;
+    auto closest_so_far = acceptable_t_interval.max();
 
     for (const auto& object : objects) {
-        if(object->hit(r, ray_tmin, closest_so_far, temp_h_rec)) {
+        if(object->hit(r, Interval(acceptable_t_interval.min(), closest_so_far), temp_h_rec)) {
             hit_anything = true;
             closest_so_far = temp_h_rec.t;
             h_rec = temp_h_rec;

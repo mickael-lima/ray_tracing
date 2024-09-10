@@ -29,6 +29,11 @@ class Render {
         void write_color(std::ostream &out, const Vec3 &color);
         Vec3 ray_color(const Ray &r, const Hittable &world);
 
+        // A partir das coordenadas (i, j) produza raios de luz que interceptem o pixel de forma aleatória.
+        // NOTE: vital para implementação de anti-aliasing
+        Ray get_ray(int i_coord, int j_coord) const;
+
+
     private:
         double m_aspect_ratio;
 
@@ -67,6 +72,11 @@ class Render {
         // https://raytracing.github.io/images/fig-1.04-pixel-grid.jpg
         Vec3 m_viewport_upper_left{m_camera_center - Vec3(0, 0, m_focal_length) - m_viewport_i/2 - m_viewport_j/2};
         Vec3 m_pixel00_loc{m_viewport_upper_left + 0.5 * (m_pixel_delta_i + m_pixel_delta_j)};
+
+        int m_ray_sample_per_pixel{10};
+        double m_ray_sample_scale{1.0 / m_ray_sample_per_pixel};
+
+        Vec3 m_center{0,0,0};
 };
 
 #endif

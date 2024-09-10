@@ -35,7 +35,7 @@ cd ray_tracing && mkdir -p build
 3. Entre na pasta `build` e execute o `cmake` apontando para pasta parente, que contém o `CMakeLists.txt`
 
 ``` sh
-cd build && cmake ..
+cd build && cmake .. && make
 ```
 
 4. Quando o processo de compilação terminar, dois binários serão disponibilizados na pasta `build`, chamados de `ray_tracing` e `tests`. O primeiro é o programa em si e o segundo executa uma série de testes para garantir que o código esteja funcionando conforme fora pensado durante sua criação. Para formar a imagem, utilize 
