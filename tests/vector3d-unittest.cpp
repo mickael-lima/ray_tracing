@@ -1,4 +1,6 @@
 #include "../lib/vector3d.hpp"
+#include "../lib/utility.hpp"
+
 #include <gtest/gtest.h>
 #include <array>
 #include <cmath>
@@ -152,4 +154,20 @@ TEST(OperadorVetores3D, VetorUnitario) {
     EXPECT_EQ(resultado.x(), 2 / std::sqrt(21));
     EXPECT_EQ(resultado.y(), -(4 / std::sqrt(21)));
     EXPECT_EQ(resultado.z(), 1 / std::sqrt(21));
+}
+
+TEST(OperadorVetores3D, VetorRandom) {
+    Vec3 vetor1 = Utility::random_vec();
+    Vec3 vetor2 = Utility::random_vec();
+
+    EXPECT_NE(vetor1.x(), vetor2.x());
+    EXPECT_NE(vetor1.y(), vetor2.y());
+    EXPECT_NE(vetor1.z(), vetor2.z());
+
+    Vec3 vetor3 = Utility::random_vec(-1, 1);
+    Vec3 vetor4 = Utility::random_vec(-1, 1);
+
+    EXPECT_NE(vetor3.x(), vetor4.x());
+    EXPECT_NE(vetor3.y(), vetor4.y());
+    EXPECT_NE(vetor3.z(), vetor4.z());
 }

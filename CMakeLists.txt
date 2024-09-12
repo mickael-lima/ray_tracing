@@ -25,12 +25,14 @@ add_executable(
   src/render.cpp
   src/objects.cpp
   src/vector3d.cpp
+  src/utility.cpp
 )
 
 add_executable(
   tests
   tests/vector3d-unittest.cpp
   src/vector3d.cpp
+  src/utility.cpp
 )
 
 target_link_libraries(

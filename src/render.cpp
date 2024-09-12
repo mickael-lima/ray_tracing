@@ -27,12 +27,31 @@ void Render::write_color(std::ostream &out, const Vec3 &color) {
     out << rbyte << ' ' << gbyte << ' ' << bbyte << std::endl;
 }
 
-Vec3 Render::ray_color(const Ray &r, const Hittable &world) {
+Vec3 Render::ray_color(const Ray &r, const Hittable &world, int recursive_depth) {
+
+    // A cor (0,0,0) serve para representar ausencia de luz
+    if(recursive_depth <= 0)
+        return Vec3{0,0,0};
+
     HitRecord rec;
 
-    // Consideramos t_max igual infinito para gerar a imagem especifica
-    if(world.hit(r, Interval(0.0, +INFTY), rec))
-        return 0.5 * (rec.normal_sur_vector + Vec3{1, 1, 1});
+    // NOTE: Se o raio atingir o objeto, retorne cinza (intermediário  entre [0,0,0] e [1,1,1]), se não retorne
+    // o valor original para cor do raio.
+    //
+    // Utilizar um intervalo (0, +INFTY) desencadeia um problema causado pelas limitações de pontos flutuantes. Se
+    // considerarmos t = 0.0000001, a tendência é que  t  seja arredondado para 0, de modo que
+    //
+    // 1. t = 0.00000001
+    // 2. t = 0.00000000001
+    // 3. t = 0.000000000000001
+    // etc...
+    //
+    // Sejam considerado o mesmo raio de luz. Pare resolver esse bug, consideraremos como ponto inicial um intervalo
+    // um pouco maior do que 0.
+    if(world.hit(r, Interval(0.001, +Utility::INFTY), rec)) {
+        Vec3 direction = Utility::random_vec_on_hemisphere(rec.normal_sur_vector);
+        return 0.5 * (ray_color(Ray(rec.point, direction), world, recursive_depth - 1));
+    }
 
     Vec3 unit_direction = r.direction().unit();
     auto a = 0.5*(unit_direction.y() + 1.0);
@@ -46,7 +65,7 @@ Vec3 random_vec_from_unit_square() {
     // O quadrado unitário está na região x = {-0.5, 0.5}, y = {-0.5, 0.5} e random_double()
     // retornará sempre um número menor que 1, portanto o vetor abaixo está nos limites do
     // quadrado unitário estabelecido
-    return Vec3((random_double() - 0.5), (random_double() - 0.5), 0);
+    return Vec3((Utility::random_double() - 0.5), (Utility::random_double() - 0.5), 0);
 }
 
 //  Joga um raio com origem no centro da câmera até um ponto escolhido aleatoriamente na coordenada (i, j)
@@ -95,7 +114,7 @@ void Render::output_to_ppm(const char *filename) {
 
             for(auto sample = 0; sample < m_ray_sample_per_pixel; ++sample) {
                 Ray r = get_ray(i, j);
-                pixel_color += ray_color(r, world);
+                pixel_color += ray_color(r, world, m_max_recursive_depth);
             }
 
             write_color(output_file, m_ray_sample_scale * pixel_color);

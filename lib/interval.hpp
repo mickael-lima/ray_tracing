@@ -7,7 +7,7 @@
 class Interval {
 
 public:
-  Interval() : m_min{-INFTY}, m_max{+INFTY} {}
+  Interval() : m_min{-Utility::INFTY}, m_max{+Utility::INFTY} {}
   Interval(double min, double max) : m_min{min}, m_max{max} {}
 
   // Tamanho do intervalo

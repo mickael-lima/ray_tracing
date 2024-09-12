@@ -27,7 +27,7 @@ class Render {
 
         void output_to_ppm(const char *filename);
         void write_color(std::ostream &out, const Vec3 &color);
-        Vec3 ray_color(const Ray &r, const Hittable &world);
+        Vec3 ray_color(const Ray &r, const Hittable &world, int recursive_depth);
 
         // A partir das coordenadas (i, j) produza raios de luz que interceptem o pixel de forma aleatória.
         // NOTE: vital para implementação de anti-aliasing
@@ -73,8 +73,15 @@ class Render {
         Vec3 m_viewport_upper_left{m_camera_center - Vec3(0, 0, m_focal_length) - m_viewport_i/2 - m_viewport_j/2};
         Vec3 m_pixel00_loc{m_viewport_upper_left + 0.5 * (m_pixel_delta_i + m_pixel_delta_j)};
 
-        int m_ray_sample_per_pixel{10};
+        // Anti-aliasing, referente a quantos raios aleatórios irão atingir o pixel
+        int m_ray_sample_per_pixel{100};
         double m_ray_sample_scale{1.0 / m_ray_sample_per_pixel};
+
+        // Ao renderizar objetos difusos, é chamada uma função recursiva para o caso do raio de luz bata na forma espacial
+        // e a chamada da função recursiva só será parada quando o raio de luz não bater mais no objeto, o que pode levar
+        // bastante tempo e ocasionar um stack overflow, por isso é necessário limitar quantas chamadas recursivas ray_color()
+        // pode executar
+        int m_max_recursive_depth{50};
 
         Vec3 m_center{0,0,0};
 };

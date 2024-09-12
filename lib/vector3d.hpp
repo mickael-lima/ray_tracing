@@ -5,6 +5,7 @@
 #include <cmath>
 #include <ostream>
 
+
 /*
 Criaremos uma pequena biblioteca para representar um vetor tridimensional (um modo oportuno para representar raios de luz no
 espaço) junto com algumas operações fundamentais, como soma, normal, vetor oposto, etc.
@@ -28,7 +29,11 @@ class Vec3 {
         // Multiplicação entre um vetor um escalar real t
         Vec3& operator*=(double t);
 
-        // Norma do vetor tridimensional: d^2 = x^2 + y^2 + z^2
+        // Retorna o módulo do vetor ao quadrado, para evitar custos de processamentos
+        // relacionados a extrair a raíz quadrada em situações que não é necessário fazê-la
+        double squared_length() const;
+
+        // Norma do vetor tridimensional: d = sqrt(x^2 + y^2 + z^2)
         double length() const;
 
         // Majoritariamente, usado para printar o objecto Vec3 na forma X Y Z 
@@ -61,9 +66,10 @@ class Vec3 {
         // Vetor unitário
         Vec3 unit() const { return *this / this->length(); };
 
-    private:
+      private:
         std::array<double, 3> m_vector;
 };
+
 
 // Representar pontos e cores como vetores pode não ser a melhor abordagem. TODO: Refatorar
 using Point3 = Vec3;

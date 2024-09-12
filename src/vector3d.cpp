@@ -16,9 +16,12 @@ Vec3& Vec3::operator*=(double t) {
     return *this;
 }
 
+double Vec3::squared_length() const {
+    return (x() * x()) + (y() * y()) + (z() * z());
+}
+
 double Vec3::length() const {
-    auto squared_len = (x() * x()) + (y() * y()) + (z() * z());
-    return std::sqrt(squared_len);
+    return std::sqrt(squared_length());
 }
 
 std::ostream& operator<<(std::ostream& out, const Vec3& vetor) {
@@ -68,3 +71,4 @@ Vec3 operator%(const Vec3& vetor_u, const Vec3& vetor_w) {
                 vetor_u.z() * vetor_w.x() - vetor_u.x() * vetor_w.z(),
                 vetor_u.x() * vetor_w.y() - vetor_u.y() * vetor_w.x() };
 }
+
