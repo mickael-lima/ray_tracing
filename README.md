@@ -46,3 +46,12 @@ cd build && cmake .. && make
 
 ### Compatibilidade
 O código e o sistema de compilação foram testados no `GNU/Linux` na distribuição `NixOS` em seu `branch stable-24.05` com `cmake v3.29` com auxiliar `gnumake`, no `Windows 11` com a suite `Visual Studio 2022` e em uma máquina virtual com `Ubuntu 22.04 LTS`. As imagens geradas pelo programa foram abertos com o visualizador de bitmap nativo do `Windows 11` e com o `Gwenview` do `KDE 6`. Caso haja alguma complicação em algum sistema não testado (Mac, *BSD) comunique criando um `issue`.
+
+### Desempenho
+O programa utiliza inteiramente a CPU para realizar as operações matemáticas, que para o caso de renderizar gráficos não chega a ser o ideal, no entanto para fins de estudos ainda é uma abordagem suficiente. No momento, o código é inteiramente sequencial, não possuindo nenhum artifício de `threads`. A implemetanção de _multithreading_ nesse programa está planejada, mas por enquanto não será o foco principal. O comando `time` relata, no estado atual do projeto,
+
+```sh
+8,49s user 0,13s system 99% cpu 8,625 total
+```
+
+Em um processador `Ryzen 5 4600g`.
