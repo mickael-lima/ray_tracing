@@ -44,6 +44,14 @@ namespace Utility {
     // sição de cores mais suaves na hora de renderizar os pixels em .ppm;
     // Mais informações: https://docs.unity3d.com/Manual/LinearLighting.html
     double linear_to_gamma(double linear_color_value);
-}// namespace
+
+    // Retorna um vetor resultante do produto entre as componentes de dois vetores
+    Vec3 product_component(const Vec3 &cetor_a, const Vec3 &vector_b);
+
+    // Reflete o vetor usando como eixo um vetor normal unitário, semelhante
+    // ao que ocorre em superfícies perfeitamente lisas na geometria óptica
+    Vec3 reflect_vector(const Vec3 &vector, const Vec3 &normal);
+
+} // namespace
 
 #endif // CONSTANTS_H_

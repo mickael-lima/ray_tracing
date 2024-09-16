@@ -26,6 +26,7 @@ add_executable(
   src/objects.cpp
   src/vector3d.cpp
   src/utility.cpp
+  src/material.cpp
 )
 
 add_executable(

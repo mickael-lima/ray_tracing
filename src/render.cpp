@@ -8,6 +8,7 @@
 #include "../lib/objects.hpp"
 #include "../lib/ray.hpp"
 #include "../lib/utility.hpp"
+#include "../lib/material.hpp"
 
 // Essa função transforma um vetor de cor {R, G, B} em uma linha válida de PPM
 // mais informações sobre o formato PPM pode ser encontrada nos comentários de
@@ -56,14 +57,15 @@ Vec3 Render::ray_color(const Ray &r, const Hittable &world, int recursive_depth)
     // Sejam considerado o mesmo raio de luz. Pare resolver esse bug, consideraremos como ponto inicial um intervalo
     // um pouco maior do que 0.
     if(world.hit(r, Interval(0.001, +Utility::INFTY), rec)) {
+        Ray scattered;
+        Vec3 color_attenuation;
 
-        // NOTE: Implementação do modelo de reflexão difusa de Lambertian. Consideramos, inicialmente, que o ponto onde
-        // o raio de luz bate e é refletido chama-se P. A partir disso, cria-se uma esfera tangente a reflexão no ponto
-        // P da superfície. O vetor que apontará para o centro da esfera tangente é dado por N + P (normal da sup + P).
-        // Ao fazer a soma vetorial de N + P com um vetor unitário aleatório, resultará em um novo vetor que está contido
-        // na esfera tangente, gerando raios não-uniformes e mais realistas.
-        Vec3 direction = rec.normal_sur_vector + Utility::random_unit_vec();
-        return 0.5 * (ray_color(Ray(rec.point, direction), world, recursive_depth - 1));
+        if(rec.obj_material->scatter(r, rec, color_attenuation, scattered)) {
+            auto color = ray_color(scattered, world, recursive_depth - 1);
+            return Utility::product_component(color_attenuation, color);
+        }
+
+        return Vec3{0,0,0};
     }
 
     Vec3 unit_direction = r.direction().unit();
@@ -106,8 +108,15 @@ void Render::output_to_ppm(const char *filename) {
     // Lista de objetos que será renderizado
     HittableList world;
 
-    world.add_to_obj_list(std::make_shared<Sphere>(Point3(0, 0, -1.0), 0.5));
-    world.add_to_obj_list(std::make_shared<Sphere>(Point3(0, -100.5, -1.0), 100));
+    auto material_ground = std::make_shared<Lambertian>(Vec3{0.8, 0.8, 0.0});
+    auto material_center = std::make_shared<Lambertian>(Vec3{0.1, 0.2, 0.5});
+    auto material_left = std::make_shared<Metal>(Vec3{0.8, 0.8, 0.8});
+    auto material_right = std::make_shared<Metal>(Vec3{0.8, 0.6, 0.2});
+
+    world.add_to_obj_list(std::make_shared<Sphere>(Vec3( 0.0, -100.5, -1.0), 100.0, material_ground));
+    world.add_to_obj_list(std::make_shared<Sphere>(Vec3( 0.0,    0.0, -1.2),   0.5, material_center));
+    world.add_to_obj_list(std::make_shared<Sphere>(Vec3(-1.0,    0.0, -1.0),   0.5, material_left));
+    world.add_to_obj_list(std::make_shared<Sphere>(Vec3( 1.0,    0.0, -1.0),   0.5, material_right));
 
     // Arquivo para escrever a renderização em formado .PPM
     std::ofstream output_file(filename, std::ofstream::out | std::ofstream::trunc);

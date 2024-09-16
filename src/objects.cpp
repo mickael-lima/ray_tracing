@@ -73,10 +73,12 @@ bool Sphere::hit(const Ray& ray, Interval acceptable_t_interval, HitRecord &h_re
     Vec3 outward_normal = (h_rec.point - m_center) / m_radius;
     h_rec.set_face_normal(ray, outward_normal);
 
+    // Definimos o tipo de material da esfera
+    h_rec.obj_material = m_material;
+
     return true;
 }
 
-//
 bool HittableList::hit(const Ray& r, Interval acceptable_t_interval, HitRecord &h_rec) const {
     HitRecord temp_h_rec;
     bool hit_anything = false;

@@ -8,6 +8,8 @@
 #include "ray.hpp"
 #include "interval.hpp"
 
+class Material; // NOTE: Evita problemas de dependência ciclica entre as classes Material e HitRecord
+
 // Esse header contém os objetos que queremos renderizar. Todos serão deriváveis de uma classe
 // puramente virtul que servirar como base, chamada de "Hittable" (ou seja, tudo que pode ser
 // "tocado" pela luz)
@@ -22,6 +24,7 @@ class HitRecord {
         Vec3 normal_sur_vector;
         double t;
         bool is_front_face;
+        std::shared_ptr<Material> obj_material;
 
         // Por convenção, todos os vetores normais à superfície do objeto devem
         // apontar para fora (no mesmo sentido do vetor centro->ponto na superfície)
@@ -39,8 +42,8 @@ class Hittable {
 class Sphere : public Hittable {
     public:
         // NOTE: raio não pode ser negativo
-        Sphere(const Vec3 &center, double radius)
-            : m_center(center), m_radius(fmax(0, radius)) {}
+        Sphere(const Vec3 &center, double radius, std::shared_ptr<Material> material)
+                : m_center(center), m_radius(fmax(0, radius)), m_material{material} {}
 
         Vec3 center() { return m_center; };
         double radius() { return m_radius; };
@@ -52,6 +55,7 @@ class Sphere : public Hittable {
     private:
         Vec3 m_center{};
         double m_radius;
+        std::shared_ptr<Material> m_material;
 };
 
 // Uma lista/coleção/agrupamento de todos os objetos que são "tocáveis". Seria uma espécie de "mundo" onde

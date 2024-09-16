@@ -72,3 +72,7 @@ Vec3 operator%(const Vec3& vetor_u, const Vec3& vetor_w) {
                 vetor_u.x() * vetor_w.y() - vetor_u.y() * vetor_w.x() };
 }
 
+bool Vec3::near_zero() const {
+    auto limit = 1e-8;
+    return (std::fabs(x()) < limit) && (std::fabs(y())) < limit && (std::fabs(z()) < limit);
+}

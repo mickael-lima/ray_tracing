@@ -53,3 +53,20 @@ double Utility::linear_to_gamma(double linear_color_value) {
 
     return 0;
 }
+
+Vec3 Utility::product_component(const Vec3 &vector_a, const Vec3 &vector_b) {
+  return Vec3{vector_a.x() * vector_b.x(),
+              vector_a.y() * vector_b.y(),
+              vector_a.z() * vector_b.z()
+  };
+}
+
+// Considere o modelo de reflexão em materiais metálicos: https://raytracing.github.io/images/fig-1.15-reflection.jpg
+// Pela operação com vetores, sabe-se que V + 2B resulta em um vetor R que tem a mesma direção e sentido do vetor
+// procurado na imagem. Para determinar o valor de B, projeta-se o vetor V em B. Pela formula de projeção de vetor e
+// considerando o fato que N sempre será unitário, é necessário apenas o produto escalar (V * N)*N para determinar B.
+// A fórmula fica V + 2(V * N). Dado que consideramos B sendo refletido para fora (veja a imagem), é necessário inver-
+// ter seu caminho multiplicando-o por -1. A fórmula final para essa reflexão simples é R = V - 2(N * V)*N
+Vec3 Utility::reflect_vector(const Vec3 &vector, const Vec3 &normal) {
+   return vector - (2 * (vector * normal) * normal);
+}

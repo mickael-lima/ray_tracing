@@ -66,6 +66,9 @@ class Vec3 {
         // Vetor unitário
         Vec3 unit() const { return *this / this->length(); };
 
+        // Retorna se o vetor está próximo do valor 0 em suas componentes
+        bool near_zero() const;
+
       private:
         std::array<double, 3> m_vector;
 };
