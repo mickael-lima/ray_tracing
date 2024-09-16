@@ -51,7 +51,9 @@ O código e o sistema de compilação foram testados no `GNU/Linux` na distribui
 O programa utiliza inteiramente a CPU para realizar as operações matemáticas, que para o caso de renderizar gráficos não chega a ser o ideal, no entanto para fins de estudos ainda é uma abordagem suficiente. No momento, o código é inteiramente sequencial, não possuindo nenhum artifício de `threads`. A implemetanção de _multithreading_ nesse programa está planejada, mas por enquanto não será o foco principal. O comando `time` relata, no estado atual do projeto,
 
 ```sh
-8,49s user 0,13s system 99% cpu 8,625 total
+real	0m19,347s
+user	0m19,224s
+sys	0m0,097s
 ```
 
 Em um processador `Ryzen 5 4600g`.
