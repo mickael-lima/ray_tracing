@@ -20,7 +20,6 @@ Vec3 Utility::random_vec() {
     return Vec3{Utility::random_double(), Utility::random_double(), Utility::random_double()};
 }
 
-
 Vec3 Utility::random_unit_vec() {
 
     // NOTE: Utiliza-se o método da tentativa e descarte para achar um vetor que
@@ -46,4 +45,11 @@ Vec3 Utility::random_vec_on_hemisphere(const Vec3& normal_vec) {
         return random_on_sphere_vec;
     else
         return -random_on_sphere_vec;
+}
+
+double Utility::linear_to_gamma(double linear_color_value) {
+    if(linear_color_value > 0)
+      return std::sqrt(linear_color_value);
+
+    return 0;
 }

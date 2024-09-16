@@ -20,6 +20,13 @@ void Render::write_color(std::ostream &out, const Vec3 &color) {
     auto g{color.y()};
     auto b{color.z()};
 
+    // Aplica correção de cor pela conversão do espaço linear para espaço gamma.
+    // Nessa implementação, utilizou-se o espaço "gamma 2", que consiste em elevar
+    // o expoente do valor linear pelo inverso de 2 (tirar raíz quadrada).
+    r = Utility::linear_to_gamma(r);
+    g = Utility::linear_to_gamma(g);
+    b = Utility::linear_to_gamma(b);
+
     int rbyte{int(256 * intensity_level.restrict_to_interval(r))};
     int gbyte{int(256 * intensity_level.restrict_to_interval(g))};
     int bbyte{int(256 * intensity_level.restrict_to_interval(b))};
@@ -49,7 +56,13 @@ Vec3 Render::ray_color(const Ray &r, const Hittable &world, int recursive_depth)
     // Sejam considerado o mesmo raio de luz. Pare resolver esse bug, consideraremos como ponto inicial um intervalo
     // um pouco maior do que 0.
     if(world.hit(r, Interval(0.001, +Utility::INFTY), rec)) {
-        Vec3 direction = Utility::random_vec_on_hemisphere(rec.normal_sur_vector);
+
+        // NOTE: Implementação do modelo de reflexão difusa de Lambertian. Consideramos, inicialmente, que o ponto onde
+        // o raio de luz bate e é refletido chama-se P. A partir disso, cria-se uma esfera tangente a reflexão no ponto
+        // P da superfície. O vetor que apontará para o centro da esfera tangente é dado por N + P (normal da sup + P).
+        // Ao fazer a soma vetorial de N + P com um vetor unitário aleatório, resultará em um novo vetor que está contido
+        // na esfera tangente, gerando raios não-uniformes e mais realistas.
+        Vec3 direction = rec.normal_sur_vector + Utility::random_unit_vec();
         return 0.5 * (ray_color(Ray(rec.point, direction), world, recursive_depth - 1));
     }
 

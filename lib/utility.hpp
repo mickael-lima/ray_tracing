@@ -37,6 +37,13 @@ namespace Utility {
     // direção centro -> fora da superfície) n * d < 0.0 => cos() < 0 => angulo
     // >90 (vetor apontando na direção fora da superficie -> dentro)
     Vec3 random_vec_on_hemisphere(const Vec3 &normal_vec);
+
+    // Transforma um valor de cor linear em cor gamma aplicando um fator de
+    // correção, fazendo com que a cor apareça mais natural ao ser exibida
+    // em monitores. Isso é necessário, nesse contexto, para deixar a tran-
+    // sição de cores mais suaves na hora de renderizar os pixels em .ppm;
+    // Mais informações: https://docs.unity3d.com/Manual/LinearLighting.html
+    double linear_to_gamma(double linear_color_value);
 }// namespace
 
 #endif // CONSTANTS_H_
