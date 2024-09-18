@@ -2,6 +2,7 @@
 #include <fstream>
 #include <filesystem>
 #include <memory>
+#include <thread>
 
 #include "../lib/render.hpp"
 #include "../lib/vector3d.hpp"
@@ -99,6 +100,85 @@ Ray Render::get_ray(int i, int j) const {
 
 }
 
+void Render::render_quadrant(std::ostream &output_file, int quadrant, HittableList &world) {
+
+    int start_i = 0;
+    int start_j = 0;
+    int end_i = 0;
+    int end_j = 0;
+
+    switch(quadrant) {
+        case 1: {
+            start_i = 0;
+            start_j = 0;
+            end_i = m_img_width;
+            end_j = m_img_height / 4;
+            break;
+        }
+
+        case 2: {
+            start_i = 0;
+            start_j = m_img_height / 4;
+            end_i = m_img_width;
+            end_j = m_img_height / 3;
+            break;
+        }
+
+        case 3: {
+            start_i = 0;
+            start_j = m_img_height / 3;
+            end_i = m_img_width;
+            end_j = m_img_height / 2;
+            break;
+        }
+
+        case 4: {
+            start_i = 0;
+            start_j = m_img_height / 2;
+            end_i = m_img_width;
+            end_j = m_img_height;
+            break;
+        }
+
+        default: {
+            start_i = 0;
+            start_j = 0;
+            end_i = m_img_width;
+            end_j = m_img_height;
+            break;
+        }
+    }
+
+    // Qualquer coisa abaixo de "255" é considerado como conteúdo
+    // A ordem de informação é RGBYWB (red/green/blue/yellow/white/black)
+    for (auto j = start_j; j < end_j; ++j) {
+      std::clog << "\nLinhas verticias restantes: " << (m_img_height - j) << ' ' << std::flush;
+
+      for (auto i = start_i; i < end_i; ++i) {
+        Vec3 pixel_color{0, 0, 0};
+
+        for (auto sample = 0; sample < m_ray_sample_per_pixel; ++sample) {
+          Ray r = get_ray(i, j);
+          pixel_color += ray_color(r, world, m_max_recursive_depth);
+        }
+
+        write_color(output_file, m_ray_sample_scale * pixel_color);
+      }
+    }
+}
+
+void Render::merge_renderized_cache_files(std::ostream &final_file, std::vector<const char*> cache_filenames)  {
+    std::vector<std::ifstream> cache_content;
+
+    for(auto &cache_filename : cache_filenames)
+      cache_content.push_back(std::ifstream(cache_filename, std::ios_base::binary));
+
+    for(auto &content : cache_content) {
+      final_file << content.rdbuf();
+      content.close();
+    }
+}
+
 // Trataremos a cor no formato RGB, onde os valores de R, G e B são componentes de um vetor
 void Render::output_to_ppm(const char *filename) {
 
@@ -118,30 +198,40 @@ void Render::output_to_ppm(const char *filename) {
     world.add_to_obj_list(std::make_shared<Sphere>(Vec3(-1.0,    0.0, -1.0),   0.5, material_left));
     world.add_to_obj_list(std::make_shared<Sphere>(Vec3( 1.0,    0.0, -1.0),   0.5, material_right));
 
-    // Arquivo para escrever a renderização em formado .PPM
-    std::ofstream output_file(filename, std::ofstream::out | std::ofstream::trunc);
+    std::vector<const char*> cache_filenames = {"render_cache_1", "render_cache_2", "render_cache_3", "render_cache_4"};
+    std::vector<std::ofstream> cache_files;
+
+    // Arquivos soltos para renderizar cada pedaço da cena, necessário para
+    // renderizar paralelamente.
+    for (auto &cache_filename : cache_filenames)
+      cache_files.push_back(std::ofstream(cache_filename, std::ofstream::out | std::ofstream::trunc | std::ios_base::binary));
+
+    // Arquivo final, onde de fato o PPM será gerado
+    std::ofstream output_file(filename, std::ofstream::out | std::ofstream::trunc | std::ios_base::binary);
 
     // https://en.wikipedia.org/wiki/Netpbm#PPM_example
     output_file << "P3" << std::endl;
     output_file << m_img_width << ' ' << m_img_height << std::endl;
     output_file << "255" << std::endl;
 
-    // Qualquer coisa abaixo de "255" é considerado como conteúdo
-    // A ordem de informação é RGBYWB (red/green/blue/yellow/white/black)
-    for(auto j = 0; j < m_img_height; ++j) {
-        std::clog << "\nLinhas verticias restantes: " << (m_img_height - j) << ' ' << std::flush;
+    // Renderiza a cena em 4 arquivos diferentes
 
-        for(auto i = 0; i < m_img_width; ++i) {
-            Vec3 pixel_color{0,0,0};
+    std::thread render1(&Render::render_quadrant, this, std::ref(cache_files.at(0)), 1, std::ref(world));
+    std::thread render2(&Render::render_quadrant, this, std::ref(cache_files.at(1)), 2, std::ref(world));
+    std::thread render3(&Render::render_quadrant, this, std::ref(cache_files.at(2)), 3, std::ref(world));
+    std::thread render4(&Render::render_quadrant, this, std::ref(cache_files.at(3)), 4, std::ref(world));
 
-            for(auto sample = 0; sample < m_ray_sample_per_pixel; ++sample) {
-                Ray r = get_ray(i, j);
-                pixel_color += ray_color(r, world, m_max_recursive_depth);
-            }
+    render1.join();
+    render2.join();
+    render3.join();
+    render4.join();
 
-            write_color(output_file, m_ray_sample_scale * pixel_color);
-        }
-    }
+    // Junta-se as cenas em 1 arquivo final, que será o .ppm
+    merge_renderized_cache_files(output_file, cache_filenames);
+
+    // Necessário fechar os streams para não ocorrer nenhum tipo de vazamento de memória
+    for(auto &cache_file : cache_files)
+        cache_file.close();
 
     output_file.close();
     std::clog << std::endl << "Concluído" << std::endl;

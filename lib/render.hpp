@@ -29,10 +29,15 @@ class Render {
         void write_color(std::ostream &out, const Vec3 &color);
         Vec3 ray_color(const Ray &r, const Hittable &world, int recursive_depth);
 
+        // É interessante dividir a renderização em 4 quadrantes da imagem para diminuir o tempo de renderização
+        // por meio de multithreading
+        void render_quadrant(std::ostream &output_file, int quadrant, HittableList &world);
+
         // A partir das coordenadas (i, j) produza raios de luz que interceptem o pixel de forma aleatória.
         // NOTE: vital para implementação de anti-aliasing
         Ray get_ray(int i_coord, int j_coord) const;
 
+        void merge_renderized_cache_files(std::ostream &final_filename, std::vector<const char*> cache_filenames);
 
     private:
         double m_aspect_ratio;
